@@ -17,6 +17,7 @@ namespace GameOfLife
         private void ConWayMain_Load(object sender, EventArgs e)
         {
             CreateGridSurface(true);
+            activeCount();
         }
 
         private void CreateGridSurface(bool RandomCells)
@@ -85,6 +86,7 @@ namespace GameOfLife
         private void advanceButton_Click(object sender, EventArgs e)
         {
             NextState();
+            activeCount();
         }
 
         private void NextState()
@@ -101,42 +103,35 @@ namespace GameOfLife
             as if by reproduction.
             */
             List<Cell> newStates = new List<Cell>();
+            Grid newCellGrid;
 
             foreach (Cell cell in Grid.gridCells)
             {
-                int adjacentAlive = CellGrid.AliveCheck(cell);
-
-                // Check the rules of the game and set the next state in the temporary list
+                int adjacentAlive = cell.AliveCheck(cell);
+ 
                 if (cell.isAlive)
                 {
                     if (adjacentAlive < 2 || adjacentAlive > 3)
                     {
-                        newStates.Add(new Cell(cell.Location, cell.xPos, cell.yPos) { isAlive = false });
+                        cell.NextStatus = false;
                     }
                     else
                     {
-                        newStates.Add(new Cell(cell.Location, cell.xPos, cell.yPos) { isAlive = true });
+                        cell.NextStatus = true;
                     }
                 }
                 else
                 {
                     if (adjacentAlive == 3)
                     {
-                        newStates.Add(new Cell(cell.Location, cell.xPos, cell.yPos) { isAlive = true });
-                    }
-                    else
-                    {
-                        newStates.Add(new Cell(cell.Location, cell.xPos, cell.yPos) { isAlive = false });
+                        cell.NextStatus = true;
                     }
                 }
             }
-
-            // Update the original list with the new states
-            for (int i = 0; i < Grid.gridCells.Count; i++)
+            foreach (Cell cell in Grid.gridCells)
             {
-                Grid.gridCells[i].isAlive = newStates[i].isAlive;
+                cell.isAlive = cell.NextStatus;
             }
-
             // Update the grid display
             UpdateGrid(CellGrid);
         }
@@ -150,10 +145,24 @@ namespace GameOfLife
             InProgress = !InProgress;
             goButton.Text = InProgress ? "Stop" : "Go";
 
-            while(InProgress)
+            while (InProgress)
             {
                 NextState();
                 Application.DoEvents();
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            activeCount();
+        }
+
+        public void activeCount()
+        {
+            comboBox1.Items.Clear();
+            foreach (Cell cell in Grid.gridCells)
+            {
+                comboBox1.Items.Add($"X: {cell.xPos}, Y: {cell.yPos}, Count: {cell.AliveCheck(cell)}");
             }
         }
     }
@@ -195,12 +204,33 @@ namespace GameOfLife
             get { return cIsAlive; }
             set { cIsAlive = value; }
         }
-    public bool NextStatus
-    {
-        get { return cNext; }
-        set { cNext = value; }
+        public bool NextStatus
+        {
+            get { return cNext; }
+            set { cNext = value; }
+        }
+
+        public int AliveCheck(Cell cellCheck)
+        {
+            int liveAdjacent = 0;
+
+            foreach (Cell cell in Grid.gridCells)
+            {
+                if(cell.Location != this.Location && cell.isAlive)
+                {
+                    if ((Math.Abs(cell.xPos-this.xPos) < 2) && Math.Abs(cell.yPos-this.yPos) <2)
+                    {
+                        if (cell.isAlive)
+                        {
+                        liveAdjacent++;
+                        }
+                    }
+                }
+            }
+            return liveAdjacent;
+        }
     }
-    }
+
     public class Grid
     {
         public static List<Cell> gridCells = new List<Cell>();
@@ -222,30 +252,6 @@ namespace GameOfLife
         {
             get { return cCols; }
             set { cCols = value; }
-        }
-
-        public int AliveCheck(Cell cellCheck)
-        {
-            int liveAdjacent = 0;
-
-            foreach (Cell cell in Grid.gridCells)
-            {
-                if(cell.xPos == (cellCheck.xPos + 1) || cell.xPos == (cellCheck.xPos -1) || cell.xPos == (cellCheck.xPos))
-                {
-                    if (cell.yPos == (cellCheck.yPos + 1) || cell.yPos == (cellCheck.yPos - 1) || cell.yPos == (cellCheck.yPos))
-                    {
-                        if (cell.xPos == (cellCheck.xPos) && cell.yPos == (cellCheck.yPos))
-                        {
-                            continue;
-                        }
-                        else if(cell.isAlive)
-                        {
-                            liveAdjacent++;
-                        }
-                    }
-                }
-            }
-            return liveAdjacent;
         }
     }
 }

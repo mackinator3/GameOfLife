@@ -35,6 +35,7 @@
             advanceButton = new Button();
             pbGrid = new PictureBox();
             numsSize = new NumericUpDown();
+            comboBox1 = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)pbGrid).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numsSize).BeginInit();
             SuspendLayout();
@@ -79,10 +80,18 @@
             numsSize.Name = "numsSize";
             numsSize.Value = new decimal(new int[] { 12, 0, 0, 0 });
             // 
+            // comboBox1
+            // 
+            comboBox1.FormattingEnabled = true;
+            resources.ApplyResources(comboBox1, "comboBox1");
+            comboBox1.Name = "comboBox1";
+            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
+            // 
             // ConwayMain
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(comboBox1);
             Controls.Add(numsSize);
             Controls.Add(pbGrid);
             Controls.Add(advanceButton);
@@ -104,5 +113,6 @@
         private Button advanceButton;
         private PictureBox pbGrid;
         private NumericUpDown numsSize;
+        private ComboBox comboBox1;
     }
 }
