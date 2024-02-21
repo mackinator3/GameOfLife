@@ -18,6 +18,7 @@ namespace GameOfLife
         {
             CreateGridSurface(true);
             activeCount();
+            activeCount2();
         }
 
         private void CreateGridSurface(bool RandomCells)
@@ -50,6 +51,7 @@ namespace GameOfLife
                             newCell.isAlive = false;
                         }
                         Grid.gridCells.Add(newCell);
+                        Grid.liveState.Add(newCell);
                     }
                 }
                 UpdateGrid(CellGrid);
@@ -87,6 +89,7 @@ namespace GameOfLife
         {
             NextState();
             activeCount();
+            activeCount2();
         }
 
         private void NextState()
@@ -102,13 +105,12 @@ namespace GameOfLife
             4. Any dead cell with exactly three live neighbours becomes a live cell, 
             as if by reproduction.
             */
-            List<Cell> newStates = new List<Cell>();
-            Grid newCellGrid;
+            List<Cell> liveState2 = new List<Cell>();
 
             foreach (Cell cell in Grid.gridCells)
             {
                 int adjacentAlive = cell.AliveCheck(cell);
- 
+
                 if (cell.isAlive)
                 {
                     if (adjacentAlive < 2 || adjacentAlive > 3)
@@ -118,6 +120,10 @@ namespace GameOfLife
                     else
                     {
                         cell.NextStatus = true;
+                        if (cell.liveCheck(cell, liveState2))
+                        {
+                            liveState2.Add(cell);
+                        }
                     }
                 }
                 else
@@ -125,13 +131,22 @@ namespace GameOfLife
                     if (adjacentAlive == 3)
                     {
                         cell.NextStatus = true;
+                        if (cell.liveCheck(cell, liveState2))
+                        {
+                            liveState2.Add(cell);
+                        }
                     }
                 }
             }
+
+            Grid.liveState.Clear();
+            Grid.liveState = liveState2;
+
             foreach (Cell cell in Grid.gridCells)
             {
                 cell.isAlive = cell.NextStatus;
             }
+
             // Update the grid display
             UpdateGrid(CellGrid);
         }
@@ -163,6 +178,19 @@ namespace GameOfLife
             foreach (Cell cell in Grid.gridCells)
             {
                 comboBox1.Items.Add($"X: {cell.xPos}, Y: {cell.yPos}, Count: {cell.AliveCheck(cell)}");
+            }
+        }
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            activeCount2();
+        }
+
+        public void activeCount2()
+        {
+            comboBox2.Items.Clear();
+            foreach (Cell cell in Grid.liveState)
+            {
+                comboBox2.Items.Add($"X: {cell.xPos}, Y: {cell.yPos}, Count: {cell.AliveCheck(cell)}");
             }
         }
     }
@@ -214,11 +242,11 @@ namespace GameOfLife
         {
             int liveAdjacent = 0;
 
-            foreach (Cell cell in Grid.gridCells)
+            foreach (Cell cell in Grid.liveState)
             {
-                if(cell.Location != this.Location && cell.isAlive)
+                if(cell.Location != cellCheck.Location)
                 {
-                    if ((Math.Abs(cell.xPos-this.xPos) < 2) && Math.Abs(cell.yPos-this.yPos) <2)
+                    if ((Math.Abs(cell.xPos- cellCheck.xPos) < 2) && Math.Abs(cell.yPos- cellCheck.yPos) <2)
                     {
                         if (cell.isAlive)
                         {
@@ -229,11 +257,24 @@ namespace GameOfLife
             }
             return liveAdjacent;
         }
+
+        public bool liveCheck(Cell cellCheck, List<Cell> liveState2)
+        {
+            foreach(Cell cell in liveState2)
+            {
+                if(cell.xPos == cellCheck.xPos && cell.yPos == cellCheck.yPos)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     public class Grid
     {
         public static List<Cell> gridCells = new List<Cell>();
+        public static List<Cell> liveState = new List<Cell>();
         private int cRows;
         private int cCols;
 
