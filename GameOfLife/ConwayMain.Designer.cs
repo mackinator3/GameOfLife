@@ -108,6 +108,7 @@
             Controls.Add(resetButton);
             Controls.Add(label1);
             Name = "ConwayMain";
+            FormClosing += ConwayMain_FormClosing;
             Load += ConWayMain_Load;
             ((System.ComponentModel.ISupportInitialize)pbGrid).EndInit();
             ((System.ComponentModel.ISupportInitialize)numsSize).EndInit();
